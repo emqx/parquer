@@ -753,3 +753,43 @@ t_dict_overflow(TCConfig) when is_list(TCConfig) ->
         ok
     end,
     ok.
+
+t_empty_column() ->
+    [{matrix, true}].
+t_empty_column(matrix) ->
+    [
+        [DataPage, Compression]
+     || DataPage <- [?data_page_v1, ?data_page_v2],
+        Compression <- compressions()
+    ];
+t_empty_column(TCConfig) when is_list(TCConfig) ->
+    AvroSchemaRaw = ~b"""
+       {
+        "name": "MessageRecord",
+        "type": "record",
+        "fields": [
+          {
+            "name": "time",
+            "type": "long"
+          },
+          {
+            "name": "metric",
+            "type": "string"
+          }
+        ]
+      }
+    """,
+    AvroSchema = json:decode(AvroSchemaRaw),
+    Schema = parquer_schema_avro:from_avro(AvroSchema),
+    Opts = opts_of(TCConfig),
+    Writer0 = parquer_writer:new(Schema, Opts),
+    Record = #{<<"metric">> => <<"mymetric">>, <<"time">> => ?undefined},
+    ?assertError(
+        #{
+            reason := missing_required_value,
+            path := [{<<"time">>, ?REPETITION_REQUIRED}],
+            value := #{<<"metric">> := _, <<"time">> := ?undefined}
+        },
+        parquer_writer:write(Writer0, Record)
+    ),
+    ok.

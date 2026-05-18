@@ -440,6 +440,24 @@ missing_values_test_() ->
                 },
                 parquer_zipper:flatten(Col0, #{F1 => true})
             )},
+        {"null value (undefined) for required key (key present)",
+            ?_assertError(
+                #{
+                    reason := missing_required_value,
+                    value := #{F1 := ?undefined},
+                    path := [_, _]
+                },
+                parquer_zipper:flatten(Col1, #{F0 => #{F1 => ?undefined}})
+            )},
+        {"null value (null) for required key (key present)",
+            ?_assertError(
+                #{
+                    reason := missing_required_value,
+                    value := #{F1 := ?null},
+                    path := [_, _]
+                },
+                parquer_zipper:flatten(Col1, #{F0 => #{F1 => ?null}})
+            )},
         {"required key missing (deep)",
             ?_assertError(
                 #{
