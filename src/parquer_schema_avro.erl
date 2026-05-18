@@ -15,11 +15,8 @@
 %%--------------------------------------------------------------------
 -module(parquer_schema_avro).
 
-%% DELETEME
--compile([nowarn_export_all, export_all]).
-
 %% API
--export([]).
+-export([from_avro/1, from_avro/2]).
 
 -include("parquer.hrl").
 

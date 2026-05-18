@@ -309,6 +309,17 @@ right(_) ->
 -spec down(t()) -> false | t().
 down(#zipper{node = ?END}) ->
     false;
+down(
+    #zipper{
+        path = [],
+        node = FinalNode,
+        context = #context{parent_path = [?REPETITION_REQUIRED = KR | _]}
+    } = Z0
+) when
+    FinalNode == ?undefined;
+    FinalNode == ?null
+->
+    raise_missing_value(Z0, KR, FinalNode);
 down(#zipper{path = []}) ->
     false;
 down(#zipper{node = Node, path = [{Key, ?REPETITION_REQUIRED} = KR | KeyRest], context = C0} = Z0) ->
@@ -316,6 +327,10 @@ down(#zipper{node = Node, path = [{Key, ?REPETITION_REQUIRED} = KR | KeyRest], c
         ?undefined ->
             raise_missing_value(Z0, KR, Node);
         ?null ->
+            raise_missing_value(Z0, KR, Node);
+        #{Key := InnerNode} when
+            (InnerNode == ?undefined orelse InnerNode == ?null) andalso KeyRest == []
+        ->
             raise_missing_value(Z0, KR, Node);
         #{Key := InnerNode} when InnerNode == ?undefined; InnerNode == ?null ->
             %% They key itself is defined.
