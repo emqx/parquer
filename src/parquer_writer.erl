@@ -416,7 +416,7 @@ do_close(#writer{} = Writer0) ->
         %% todo: check what to put here
         ?version => 1,
         ?schema => schema_to_thrift(Writer1),
-        ?num_rows => Writer1#writer.num_rows,
+        ?num_rows => Writer1#writer.total_num_rows,
         ?row_groups => RowGroups
     }),
     FMDBin = parquer_thrift_utils:serialize(FMD),
